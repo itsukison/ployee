@@ -78,7 +78,7 @@ export default function SitemapPage() {
                 <div className="flex items-center text-sm text-gray-500">
                   <span className="mr-2">URL:</span>
                   <code className="bg-gray-100 px-2 py-1 rounded text-xs">
-                    https://ployee-mu.vercel.app{page.url}
+                    https://ployee.it.com{page.url}
                   </code>
                 </div>
               </article>

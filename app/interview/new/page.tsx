@@ -22,10 +22,10 @@ export const metadata: Metadata = {
     title: "新しい面接練習を始める | AI面接官との実践練習",
     description:
       "AI面接官との実践的な面接練習を今すぐ開始。無料で3回まで利用可能。",
-    url: "https://ployee-mu.vercel.app/interview/new",
+    url: "https://ployee.it.com/interview/new",
     images: [
       {
-        url: "https://ployee-mu.vercel.app/og-image.jpg",
+        url: "https://ployee.it.com/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "プロイー - 新しい面接練習を始める",
@@ -38,12 +38,12 @@ const structuredData = {
   "@context": "https://schema.org",
   "@type": "WebPage",
   name: "新しい面接練習を始める",
-  url: "https://ployee-mu.vercel.app/interview/new",
+  url: "https://ployee.it.com/interview/new",
   description: "AI面接官との実践的な面接練習を開始するページ",
   isPartOf: {
     "@type": "WebSite",
     name: "プロイー",
-    url: "https://ployee-mu.vercel.app",
+    url: "https://ployee.it.com",
   },
   potentialAction: {
     "@type": "Action",

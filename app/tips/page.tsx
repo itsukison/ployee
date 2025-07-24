@@ -23,10 +23,10 @@ export const metadata: Metadata = {
     title: "面接対策のコツ・テクニック | AI面接練習で成功する方法",
     description:
       "面接成功のための実践的なコツやテクニックをご紹介。AI面接練習の効果的な活用法から面接本番での注意点まで。",
-    url: "https://ployee-mu.vercel.app/tips",
+    url: "https://ployee.it.com/tips",
     images: [
       {
-        url: "https://ployee-mu.vercel.app/og-image.jpg",
+        url: "https://ployee.it.com/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "面接対策のコツ・テクニック - プロイー",
@@ -39,7 +39,7 @@ const structuredData = {
   "@context": "https://schema.org",
   "@type": "WebPage",
   name: "面接対策のコツ・テクニック",
-  url: "https://ployee-mu.vercel.app/tips",
+  url: "https://ployee.it.com/tips",
   description: "面接成功のための実践的なコツやテクニックを紹介するページ",
   mainEntity: {
     "@type": "Article",

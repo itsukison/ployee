@@ -7,7 +7,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ployee-mu.vercel.app"),
+  metadataBase: new URL("https://ployee.it.com"),
   title: "プロイー | AI面接練習で内定を掴む - 面接AI練習プラットフォーム",
   description:
     "AI面接官との実践的な面接練習で、自信を持って本番に挑めます。24時間いつでも面接練習が可能。面接AI、AI面接、面接練習、就活対策に最適なプラットフォーム。",
@@ -45,14 +45,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ja_JP",
-    url: "https://ployee-mu.vercel.app",
+    url: "https://ployee.it.com",
     title: "プロイー | AI面接練習で内定を掴む",
     description:
       "AI面接官との実践的な面接練習で、自信を持って本番に挑めます。24時間いつでも面接練習が可能。",
     siteName: "プロイー",
     images: [
       {
-        url: "https://ployee-mu.vercel.app/og-image.jpg",
+        url: "https://ployee.it.com/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "プロイー - AI面接練習プラットフォーム",
@@ -64,14 +64,14 @@ export const metadata: Metadata = {
     title: "プロイー | AI面接練習で内定を掴む",
     description:
       "AI面接官との実践的な面接練習で、自信を持って本番に挑めます。24時間いつでも面接練習が可能。",
-    images: ["https://ployee-mu.vercel.app/og-image.jpg"],
+    images: ["https://ployee.it.com/og-image.jpg"],
     creator: "@ployee_jp",
   },
   alternates: {
-    canonical: "https://ployee-mu.vercel.app",
+    canonical: "https://ployee.it.com",
     languages: {
-      "ja-JP": "https://ployee-mu.vercel.app",
-      "x-default": "https://ployee-mu.vercel.app",
+      "ja-JP": "https://ployee.it.com",
+      "x-default": "https://ployee.it.com",
     },
   },
   verification: {

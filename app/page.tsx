@@ -13,7 +13,7 @@ const structuredData = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
   name: "プロイー",
-  url: "https://ployee-mu.vercel.app",
+  url: "https://ployee.it.com",
   description:
     "AI面接官との実践的な面接練習で、自信を持って本番に挑めます。24時間いつでも面接練習が可能。",
   applicationCategory: "EducationalApplication",

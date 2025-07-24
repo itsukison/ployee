@@ -42,3 +42,10 @@ next-env.d.ts
 
 # clerk configuration (can include secrets)
 /.clerk/
+*.json
+# Google Cloud Service Account Keys
+
+# Google Cloud Service Account Keys
+*service-account*.json
+*-i3-*.json
+pristine-nebula-*.json
