@@ -201,11 +201,14 @@ export default function GeminiInterviewComponent({
     if (interviewPhase === "introduction") {
       introPhaseBlock = `\n【自己紹介段階の特別指示】\n- 候補者の自己紹介が短い・抽象的・情報が少ない場合は、必ず具体的な質問をして詳細を引き出してください。\n- 例：「どの大学を卒業されましたか？」「ご専門は何ですか？」「どんな仕事をされていますか？」「趣味や興味はありますか？」など。\n- 決して候補者が自発的に話し出すのを待たず、積極的に質問してください。\n- もし候補者が既に「名前」「大学」「専攻」などの基本情報を自己紹介で述べている場合は、これ以上「自己紹介をお願いします」とは言わず、学校外での活動、趣味、アルバイト経験、または次の面接フェーズ（経験・スキル・志望動機など）に自然に移行してください。\n- 例：「大学以外で力を入れている活動はありますか？」「趣味や特技について教えてください」「学生時代に頑張ったことは何ですか？」など。`;
     }
+    // New: General interview progression instructions
+    const progressionBlock = `\n【面接の進行に関する指示】\n- 会話の流れをよく観察し、候補者が十分に自己紹介や基本情報を述べたと判断したら、自然に次の話題や質問に移ってください。\n- フェーズ（自己紹介・経験・スキル・志望動機など）にこだわりすぎず、会話の内容や候補者の発言に応じて柔軟に質問を展開してください。\n- ただ「良いですね」「分かりました」などの相槌だけで終わらず、必ず次の質問や深掘りを行ってください。\n- もし話題に困った場合は、候補者の過去の発言や会話履歴から興味深い点を見つけて質問してください。`;
+
     const candidateInfoText = candidateInfo.name 
       ? `\n候補者情報:\n- 名前: ${candidateInfo.name}${candidateInfo.university ? `\n- 大学: ${candidateInfo.university}` : ''}${candidateInfo.company ? `\n- 会社: ${candidateInfo.company}` : ''}${candidateInfo.experience ? `\n- 経験: ${candidateInfo.experience}` : ''}${candidateInfo.skills ? `\n- スキル: ${candidateInfo.skills.join(', ')}` : ''}`
       : "";
 
-    return `あなたは経験豊富な日本企業の面接官です。以下の指針に従って面接を進めてください：${introPhaseBlock}
+    return `あなたは経験豊富な日本企業の面接官です。以下の指針に従って面接を進めてください：${introPhaseBlock}${progressionBlock}
 
 **重要な指示:**
 - 会話の履歴を必ず参照し、候補者が既に話した内容を覚えておく
