@@ -53,6 +53,8 @@ export default function GeminiInterviewComponent({
     experience?: string;
     skills?: string[];
     interests?: string[];
+    university?: string;
+    company?: string;
   }>({});
 
   // Audio references
@@ -103,6 +105,24 @@ export default function GeminiInterviewComponent({
         }
       }
       
+      // Extract university/education - comprehensive patterns
+      if (!updated.university) {
+        const universityPatterns = [
+          /(.+?(?:大学|学院|専門学校|短大).+?)(?:です|出身|卒業)/,
+          /(?:出身は|卒業は)(.+?(?:大学|学院|専門学校|短大).+?)(?:です|です)/,
+          /(.+?(?:大学|学院|専門学校|短大).+?)(?:で|に)(?:通っ|在学|卒業)/,
+          /(?:大学は|学校は)(.+?)(?:です|でした)/
+        ];
+        
+        for (const pattern of universityPatterns) {
+          const universityMatch = userTranscript.match(pattern);
+          if (universityMatch && universityMatch[1].trim().length > 2) {
+            updated.university = universityMatch[1].trim();
+            break;
+          }
+        }
+      }
+      
       // Extract experience/background - more comprehensive patterns
       if (!updated.experience) {
         const experiencePatterns = [
@@ -115,6 +135,23 @@ export default function GeminiInterviewComponent({
           const experienceMatch = userTranscript.match(pattern);
           if (experienceMatch && experienceMatch[1].trim().length > 5) {
             updated.experience = experienceMatch[1].trim();
+            break;
+          }
+        }
+      }
+      
+      // Extract company names
+      if (!updated.company) {
+        const companyPatterns = [
+          /(.+?(?:会社|企業|株式会社|有限会社|合同会社).+?)(?:で|に)(?:働い|勤務)/,
+          /(?:会社は|企業は)(.+?)(?:です|でした)/,
+          /(.+?(?:株式会社|有限会社|合同会社).+?)(?:です|でした)/
+        ];
+        
+        for (const pattern of companyPatterns) {
+          const companyMatch = userTranscript.match(pattern);
+          if (companyMatch && companyMatch[1].trim().length > 2) {
+            updated.company = companyMatch[1].trim();
             break;
           }
         }
@@ -147,21 +184,28 @@ export default function GeminiInterviewComponent({
     
     return history.map((msg, index) => {
       const role = msg.role === "user" ? "候補者" : "面接官";
-      return `${index + 1}. ${role}: ${msg.content}`;
+      const messageNumber = Math.floor(index / 2) + 1;
+      const isUserMessage = msg.role === "user";
+      
+      if (isUserMessage) {
+        return `【やり取り${messageNumber}】\n候補者: ${msg.content}\n`;
+      } else {
+        return `面接官: ${msg.content}\n`;
+      }
     }).join("\n");
   }, []);
 
   // Helper: create comprehensive system prompt
   const createSystemPrompt = useCallback(() => {
     const candidateInfoText = candidateInfo.name 
-      ? `\n候補者情報:\n- 名前: ${candidateInfo.name}${candidateInfo.experience ? `\n- 経験: ${candidateInfo.experience}` : ''}${candidateInfo.skills ? `\n- スキル: ${candidateInfo.skills.join(', ')}` : ''}`
+      ? `\n候補者情報:\n- 名前: ${candidateInfo.name}${candidateInfo.university ? `\n- 大学: ${candidateInfo.university}` : ''}${candidateInfo.company ? `\n- 会社: ${candidateInfo.company}` : ''}${candidateInfo.experience ? `\n- 経験: ${candidateInfo.experience}` : ''}${candidateInfo.skills ? `\n- スキル: ${candidateInfo.skills.join(', ')}` : ''}`
       : "";
 
     return `あなたは経験豊富な日本企業の面接官です。以下の指針に従って面接を進めてください：
 
 **重要な指示:**
 - 会話の履歴を必ず参照し、候補者が既に話した内容を覚えておく
-- 候補者の名前、経験、スキルなどの情報を記憶し、後で参照する
+- 候補者の名前、大学、会社、経験、スキルなどの情報を記憶し、後で参照する
 - 一貫性のある会話を維持する
 
 **面接の流れ:**
@@ -573,12 +617,18 @@ ${formatConversationHistory(conversationHistory)}${candidateInfoText}
                 </span>
               </div>
               {/* Display candidate information if available */}
-              {(candidateInfo.name || candidateInfo.experience || candidateInfo.skills) && (
+              {(candidateInfo.name || candidateInfo.university || candidateInfo.company || candidateInfo.experience || candidateInfo.skills) && (
                 <div className="mt-3 p-3 bg-white rounded border border-blue-300">
                   <h4 className="font-medium text-blue-800 mb-2">記憶された情報:</h4>
                   <div className="text-sm text-blue-700 space-y-1">
                     {candidateInfo.name && (
                       <div>• 名前: {candidateInfo.name}</div>
+                    )}
+                    {candidateInfo.university && (
+                      <div>• 大学: {candidateInfo.university}</div>
+                    )}
+                    {candidateInfo.company && (
+                      <div>• 会社: {candidateInfo.company}</div>
                     )}
                     {candidateInfo.experience && (
                       <div>• 経験: {candidateInfo.experience}</div>
