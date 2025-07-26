@@ -80,10 +80,117 @@ export default function GeminiInterviewComponent({
     else setInterviewPhase("closing");
   }, []);
 
-  // Helper: extract candidate info (placeholder)
-  const updateCandidateInfo = useCallback((aiResponse: string) => {
-    setCandidateInfo((prev) => ({ ...prev }));
+  // Helper: extract candidate info from AI responses
+  const updateCandidateInfo = useCallback((aiResponse: string, userTranscript: string) => {
+    setCandidateInfo((prev) => {
+      const updated = { ...prev };
+      
+      // Extract name if mentioned - multiple patterns
+      if (!updated.name) {
+        const namePatterns = [
+          /(?:私の名前は|私は)(.+?)(?:です|と申します|と申します|です)/,
+          /(?:名前は|名前が)(.+?)(?:です|と申します)/,
+          /(?:私は)(.+?)(?:です|と申します)/,
+          /(?:候補者は|応募者は)(.+?)(?:です|と申します)/
+        ];
+        
+        for (const pattern of namePatterns) {
+          const nameMatch = userTranscript.match(pattern);
+          if (nameMatch && nameMatch[1].trim().length > 0) {
+            updated.name = nameMatch[1].trim();
+            break;
+          }
+        }
+      }
+      
+      // Extract experience/background - more comprehensive patterns
+      if (!updated.experience) {
+        const experiencePatterns = [
+          /(.+?(?:経験|働い|職歴|勤務|在職).+?)/,
+          /(.+?(?:年|年間).+?(?:経験|働い|職歴).+?)/,
+          /(.+?(?:会社|企業|組織).+?(?:で|に).+?(?:働い|勤務).+?)/
+        ];
+        
+        for (const pattern of experiencePatterns) {
+          const experienceMatch = userTranscript.match(pattern);
+          if (experienceMatch && experienceMatch[1].trim().length > 5) {
+            updated.experience = experienceMatch[1].trim();
+            break;
+          }
+        }
+      }
+      
+      // Extract skills - more comprehensive patterns
+      if (!updated.skills || updated.skills.length === 0) {
+        const skillsPatterns = [
+          /(.+?(?:スキル|できる|技術|得意|専門).+?)/,
+          /(.+?(?:プログラミング|開発|設計|分析|管理).+?)/,
+          /(.+?(?:言語|ツール|フレームワーク).+?)/
+        ];
+        
+        for (const pattern of skillsPatterns) {
+          const skillsMatch = userTranscript.match(pattern);
+          if (skillsMatch && skillsMatch[1].trim().length > 3) {
+            updated.skills = [skillsMatch[1].trim()];
+            break;
+          }
+        }
+      }
+      
+      return updated;
+    });
   }, []);
+
+  // Helper: format conversation history for context
+  const formatConversationHistory = useCallback((history: typeof conversationHistory) => {
+    if (history.length === 0) return "まだ会話が始まっていません。";
+    
+    return history.map((msg, index) => {
+      const role = msg.role === "user" ? "候補者" : "面接官";
+      return `${index + 1}. ${role}: ${msg.content}`;
+    }).join("\n");
+  }, []);
+
+  // Helper: create comprehensive system prompt
+  const createSystemPrompt = useCallback(() => {
+    const candidateInfoText = candidateInfo.name 
+      ? `\n候補者情報:\n- 名前: ${candidateInfo.name}${candidateInfo.experience ? `\n- 経験: ${candidateInfo.experience}` : ''}${candidateInfo.skills ? `\n- スキル: ${candidateInfo.skills.join(', ')}` : ''}`
+      : "";
+
+    return `あなたは経験豊富な日本企業の面接官です。以下の指針に従って面接を進めてください：
+
+**重要な指示:**
+- 会話の履歴を必ず参照し、候補者が既に話した内容を覚えておく
+- 候補者の名前、経験、スキルなどの情報を記憶し、後で参照する
+- 一貫性のある会話を維持する
+
+**面接の流れ:**
+- 自己紹介から始める（introduction段階）
+- 経歴・経験について詳しく聞く（experience段階）
+- スキルや専門知識を確認（skills段階）
+- 志望動機や将来の目標を聞く（motivation段階）
+- 質問の機会を提供して締める（closing段階）
+
+**面接官としての態度:**
+- 丁寧で敬語を使った話し方
+- 候補者の回答に対して適切な深掘り質問
+- 1回の応答は1-2個の質問に留める
+- 候補者にたくさん話してもらう
+- 自然な会話の流れを作る
+
+**記憶の活用:**
+- 前の回答を参考にした質問をする
+- 候補者の発言に一貫性があるかチェック
+- 具体的な例やエピソードを求める
+- 候補者の名前を適切に使用する
+
+**現在の面接フェーズ:** ${interviewPhase === "introduction" ? "自己紹介" : interviewPhase === "experience" ? "経歴・経験" : interviewPhase === "skills" ? "スキル確認" : interviewPhase === "motivation" ? "志望動機" : "質疑応答"}
+
+**会話履歴:**
+${formatConversationHistory(conversationHistory)}${candidateInfoText}
+
+各回答は1文と必ず簡潔にまとめてください。`;
+  }, [conversationHistory, interviewPhase, candidateInfo, formatConversationHistory]);
 
   // Cleanup function
   const cleanup = useCallback(() => {
@@ -221,33 +328,43 @@ export default function GeminiInterviewComponent({
       const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
       if (audioBlob.size === 0) throw new Error("Empty audio data");
       if (audioBlob.size < 1000) throw new Error("Audio data too small - please speak longer");
+      
       const conversationContext = {
         history: conversationHistory,
         phase: interviewPhase,
         candidateInfo: candidateInfo,
         totalExchanges: conversationHistory.filter((msg) => msg.role === "user").length,
+        formattedHistory: formatConversationHistory(conversationHistory),
       };
-      const systemPrompt = `あなたは経験豊富な日本企業の面接官です。以下の指針に従って面接を進めてください：\n\n発言は全て簡潔にまとめてください。\n...`;
+      
+      const systemPrompt = createSystemPrompt();
+      
       const formData = new FormData();
       formData.append("audio", audioBlob, "audio.webm");
       formData.append("systemPrompt", systemPrompt);
       formData.append("context", JSON.stringify(conversationContext));
       formData.append("interviewId", interviewId);
+      
       const response = await fetch("/api/interview-conversation", {
         method: "POST",
         body: formData,
       });
+      
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`API Error: ${response.status} - ${errorText}`);
       }
+      
       const data = await response.json();
       if (!data.text) throw new Error("No text response from API");
+      
       setResponse(data.text);
+      
       // Save transcript if available
       if (data.transcript) {
         await saveTranscript(data.transcript, interviewId);
       }
+      
       // Update conversation history
       const newUserMessage = {
         role: "user" as const,
@@ -259,12 +376,18 @@ export default function GeminiInterviewComponent({
         content: data.text,
         timestamp: Date.now(),
       };
+      
       const newHistory = [...conversationHistory, newUserMessage, newAssistantMessage];
       setConversationHistory(newHistory);
       updateInterviewPhase(newHistory);
-      updateCandidateInfo(data.text);
+      
+      // Update candidate info with the new transcript
+      if (data.transcript) {
+        updateCandidateInfo(data.text, data.transcript);
+      }
+      
       // Play TTS
-      if (data.audio) {
+      if (data.audio && data.mimeType) {
         const audioData = `data:${data.mimeType};base64,${data.audio}`;
         const audio = new Audio(audioData);
         if (currentAudioRef.current) currentAudioRef.current.pause();
@@ -286,6 +409,8 @@ export default function GeminiInterviewComponent({
         };
         await audio.play();
       } else {
+        // No TTS available, continue with text-only response
+        console.log('TTS not available, continuing with text-only response');
         startNewRecordingSession();
       }
     } catch (err) {
@@ -295,7 +420,7 @@ export default function GeminiInterviewComponent({
       isProcessingRef.current = false;
       setIsProcessing(false);
     }
-  }, [conversationHistory, interviewPhase, candidateInfo, startNewRecordingSession, updateInterviewPhase, updateCandidateInfo, interviewId]);
+  }, [conversationHistory, interviewPhase, candidateInfo, startNewRecordingSession, updateInterviewPhase, updateCandidateInfo, interviewId, formatConversationHistory, createSystemPrompt]);
 
   // Start real-time recording
   const startRealTimeRecording = async () => {
@@ -447,6 +572,23 @@ export default function GeminiInterviewComponent({
                   やり取り: {Math.floor(conversationHistory.length / 2)}回
                 </span>
               </div>
+              {/* Display candidate information if available */}
+              {(candidateInfo.name || candidateInfo.experience || candidateInfo.skills) && (
+                <div className="mt-3 p-3 bg-white rounded border border-blue-300">
+                  <h4 className="font-medium text-blue-800 mb-2">記憶された情報:</h4>
+                  <div className="text-sm text-blue-700 space-y-1">
+                    {candidateInfo.name && (
+                      <div>• 名前: {candidateInfo.name}</div>
+                    )}
+                    {candidateInfo.experience && (
+                      <div>• 経験: {candidateInfo.experience}</div>
+                    )}
+                    {candidateInfo.skills && candidateInfo.skills.length > 0 && (
+                      <div>• スキル: {candidateInfo.skills.join(', ')}</div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
           {response && (
