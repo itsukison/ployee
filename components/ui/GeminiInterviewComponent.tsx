@@ -201,8 +201,8 @@ export default function GeminiInterviewComponent({
     if (interviewPhase === "introduction") {
       introPhaseBlock = `\n【自己紹介段階の特別指示】\n- 候補者の自己紹介が短い・抽象的・情報が少ない場合は、必ず具体的な質問をして詳細を引き出してください。\n- 例：「どの大学を卒業されましたか？」「ご専門は何ですか？」「どんな仕事をされていますか？」「趣味や興味はありますか？」など。\n- 決して候補者が自発的に話し出すのを待たず、積極的に質問してください。\n- もし候補者が既に「名前」「大学」「専攻」などの基本情報を自己紹介で述べている場合は、これ以上「自己紹介をお願いします」とは言わず、学校外での活動、趣味、アルバイト経験、または次の面接フェーズ（経験・スキル・志望動機など）に自然に移行してください。\n- 例：「大学以外で力を入れている活動はありますか？」「趣味や特技について教えてください」「学生時代に頑張ったことは何ですか？」など。`;
     }
-    // New: General interview progression instructions
-    const progressionBlock = `\n【面接の進行に関する指示】\n- 会話の流れをよく観察し、候補者が十分に自己紹介や基本情報を述べたと判断したら、自然に次の話題や質問に移ってください。\n- フェーズ（自己紹介・経験・スキル・志望動機など）にこだわりすぎず、会話の内容や候補者の発言に応じて柔軟に質問を展開してください。\n- ただ「良いですね」「分かりました」などの相槌だけで終わらず、必ず次の質問や深掘りを行ってください。\n- もし話題に困った場合は、候補者の過去の発言や会話履歴から興味深い点を見つけて質問してください。`;
+    // Enhanced: More comprehensive interview progression instructions
+    const progressionBlock = `\n【面接の進行に関する指示】\n- 会話の流れをよく観察し、候補者が十分に自己紹介や基本情報を述べたと判断したら、自然に次の話題や質問に移ってください。\n- フェーズ（自己紹介・経験・スキル・志望動機など）にこだわりすぎず、会話の内容や候補者の発言に応じて柔軟に質問を展開してください。\n- ただ「良いですね」「分かりました」などの相槌だけで終わらず、必ず次の質問や深掘りを行ってください。\n- もし話題に困った場合は、候補者の過去の発言や会話履歴から興味深い点を見つけて質問してください。\n\n【質問の多様性と深掘り】\n- 同じ質問を2回以上繰り返さないでください。会話履歴を確認して、既に聞いた内容は避けてください。\n- 表面的な質問だけでなく、必ず深掘り質問をしてください。例：\n  * 「なぜその活動を始められたのですか？」\n  * 「その経験から何を学ばれましたか？」\n  * 「具体的にどのような困難がありましたか？」\n  * 「その結果、どのような変化がありましたか？」\n- 質問のバリエーションを豊富にしてください：\n  * 経験・活動：「学生時代に最も印象に残っている経験は？」「部活動やサークル活動は？」「アルバイト経験は？」「インターンシップ経験は？」\n  * スキル・技術：「得意な技術やツールは？」「最近学んでいることは？」「技術的な課題にどう取り組みますか？」\n  * 志望動機：「なぜこの業界に興味を持たれましたか？」「将来のキャリアビジョンは？」「この会社を選んだ理由は？」\n  * 性格・価値観：「ストレス解消法は？」「チームワークで大切にしていることは？」「失敗から学んだことは？」\n\n【会話履歴の活用】\n- 候補者が既に話した内容を必ず覚えておき、同じ質問を繰り返さないでください。\n- 前の回答を踏まえて、より具体的で深い質問をしてください。\n- 候補者が言及したキーワードや経験を拾って、それについて詳しく聞いてください。`;
 
     const candidateInfoText = candidateInfo.name 
       ? `\n候補者情報:\n- 名前: ${candidateInfo.name}${candidateInfo.university ? `\n- 大学: ${candidateInfo.university}` : ''}${candidateInfo.company ? `\n- 会社: ${candidateInfo.company}` : ''}${candidateInfo.experience ? `\n- 経験: ${candidateInfo.experience}` : ''}${candidateInfo.skills ? `\n- スキル: ${candidateInfo.skills.join(', ')}` : ''}`
@@ -558,11 +558,20 @@ ${formatConversationHistory(conversationHistory)}${candidateInfoText}
 
   const silenceProgress = (silenceTimer / SILENCE_DURATION) * 100;
 
+  // Replace the heading with company and interview type if available
+  const heading = companyName && interviewFocus
+    ? `${companyName}｜${interviewFocus}`
+    : companyName
+    ? companyName
+    : interviewFocus
+    ? interviewFocus
+    : "AI面接システム (Gemini)";
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
-          AI面接システム (Gemini)
+          {heading}
         </h1>
         <div className="bg-white rounded-lg shadow-lg p-6 space-y-6">
           <div className="text-center">
