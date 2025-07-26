@@ -197,11 +197,15 @@ export default function GeminiInterviewComponent({
 
   // Helper: create comprehensive system prompt
   const createSystemPrompt = useCallback(() => {
+    let introPhaseBlock = "";
+    if (interviewPhase === "introduction") {
+      introPhaseBlock = `\n【自己紹介段階の特別指示】\n- 候補者の自己紹介が短い・抽象的・情報が少ない場合は、必ず具体的な質問をして詳細を引き出してください。\n- 例：「どの大学を卒業されましたか？」「ご専門は何ですか？」「どんな仕事をされていますか？」「趣味や興味はありますか？」など。\n- 決して候補者が自発的に話し出すのを待たず、積極的に質問してください。\n- もし候補者が既に「名前」「大学」「専攻」などの基本情報を自己紹介で述べている場合は、これ以上「自己紹介をお願いします」とは言わず、学校外での活動、趣味、アルバイト経験、または次の面接フェーズ（経験・スキル・志望動機など）に自然に移行してください。\n- 例：「大学以外で力を入れている活動はありますか？」「趣味や特技について教えてください」「学生時代に頑張ったことは何ですか？」など。`;
+    }
     const candidateInfoText = candidateInfo.name 
       ? `\n候補者情報:\n- 名前: ${candidateInfo.name}${candidateInfo.university ? `\n- 大学: ${candidateInfo.university}` : ''}${candidateInfo.company ? `\n- 会社: ${candidateInfo.company}` : ''}${candidateInfo.experience ? `\n- 経験: ${candidateInfo.experience}` : ''}${candidateInfo.skills ? `\n- スキル: ${candidateInfo.skills.join(', ')}` : ''}`
       : "";
 
-    return `あなたは経験豊富な日本企業の面接官です。以下の指針に従って面接を進めてください：
+    return `あなたは経験豊富な日本企業の面接官です。以下の指針に従って面接を進めてください：${introPhaseBlock}
 
 **重要な指示:**
 - 会話の履歴を必ず参照し、候補者が既に話した内容を覚えておく
@@ -466,6 +470,20 @@ ${formatConversationHistory(conversationHistory)}${candidateInfoText}
     }
   }, [conversationHistory, interviewPhase, candidateInfo, startNewRecordingSession, updateInterviewPhase, updateCandidateInfo, interviewId, formatConversationHistory, createSystemPrompt]);
 
+  // Add this function to handle the initial AI greeting and question
+  const handleInitialAIGreeting = useCallback(() => {
+    // You can customize this message as needed
+    const initialMessage =
+      "本日はお時間をいただきありがとうございます。まずは簡単に自己紹介をお願いできますか？";
+    const initialAIMessage = {
+      role: "assistant" as const,
+      content: initialMessage,
+      timestamp: Date.now(),
+    };
+    setConversationHistory([initialAIMessage]);
+    setResponse(initialMessage);
+  }, []);
+
   // Start real-time recording
   const startRealTimeRecording = async () => {
     try {
@@ -524,11 +542,13 @@ ${formatConversationHistory(conversationHistory)}${candidateInfoText}
     }
   };
 
-  // Toggle recording state
+  // Modify toggleRecording to trigger the initial AI message on start
   const toggleRecording = () => {
     if (isActive) {
       stopRealTimeRecording();
     } else {
+      // Add initial AI greeting and question before starting recording
+      handleInitialAIGreeting();
       startRealTimeRecording();
     }
   };
