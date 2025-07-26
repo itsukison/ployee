@@ -558,13 +558,27 @@ ${formatConversationHistory(conversationHistory)}${candidateInfoText}
 
   const silenceProgress = (silenceTimer / SILENCE_DURATION) * 100;
 
-  // Replace the heading with company and interview type if available
-  const heading = companyName && interviewFocus
-    ? `${companyName}｜${interviewFocus}`
+  // Map English interview types to Japanese
+  const interviewTypeMap: Record<string, string> = {
+    hr: "人事面接",
+    final: "最終面接",
+    tech: "技術面接",
+    group: "グループ面接",
+    first: "一次面接",
+    second: "二次面接",
+    third: "三次面接",
+    // Add more as needed
+  };
+  const displayInterviewFocus = interviewFocus && interviewTypeMap[interviewFocus.toLowerCase()]
+    ? interviewTypeMap[interviewFocus.toLowerCase()]
+    : interviewFocus;
+
+  const heading = companyName && displayInterviewFocus
+    ? `${companyName}｜${displayInterviewFocus}`
     : companyName
     ? companyName
-    : interviewFocus
-    ? interviewFocus
+    : displayInterviewFocus
+    ? displayInterviewFocus
     : "AI面接システム (Gemini)";
 
   return (
