@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import AutoSignIn from "@/components/ui/AutoSignIn";
+import { InterviewRadarChart } from "@/components/ui/charter";
 
 interface ESCorrectionData {
   id: string;
@@ -22,16 +23,17 @@ interface ESResultClientProps {
   esData: ESCorrectionData;
 }
 
-
+interface FeedbackSection {
+  title: string;
+  content: string;
+}
 
 const ESResultClient = ({ esData }: ESResultClientProps) => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"feedback" | "original">("feedback");
 
-  const formatFeedback = (feedback: string) => {
-    // Split feedback into sections and format them
+  const formatFeedback = (feedback: string): FeedbackSection[] => {
     const sections = feedback.split(/【([^】]+)】/).filter(Boolean);
-    const formattedSections = [];
+    const formattedSections: FeedbackSection[] = [];
     
     for (let i = 0; i < sections.length; i += 2) {
       const title = sections[i];
@@ -45,20 +47,59 @@ const ESResultClient = ({ esData }: ESResultClientProps) => {
     return formattedSections;
   };
 
-  const feedbackSections = formatFeedback(esData.ai_feedback);
-
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return "#9fe870";
-    if (score >= 80) return "#ff8c5a";
-    return "#ef4444";
-  };
-
   const getScoreLabel = (score: number) => {
     if (score >= 90) return "優秀";
     if (score >= 80) return "良好";
     if (score >= 70) return "改善の余地あり";
     return "要改善";
   };
+
+  const feedbackSections = formatFeedback(esData.ai_feedback);
+
+  // Create chart data for the radar chart
+  const chartData = [
+    { criteria: "求める人材とのマッチ", score: esData.match_score },
+    { criteria: "ESの構成", score: esData.structure_score },
+    { criteria: "基本チェック", score: esData.basic_score },
+    { criteria: "内容の充実度", score: Math.min(100, esData.overall_score + 10) },
+    { criteria: "志望動機の明確さ", score: Math.min(100, esData.match_score + 5) }
+  ];
+
+  // Organize feedback sections by merging ESの構成 with 基本チェック
+  const organizeFeedbackSections = (sections: FeedbackSection[]) => {
+    const mergedSections: FeedbackSection[] = [];
+    let mergedContent = "";
+    
+    sections.forEach(section => {
+      if (section.title.includes("求める人材とのマッチ")) {
+        mergedSections.push({
+          title: "求める人材とのマッチ",
+          content: section.content
+        });
+      } else if (section.title.includes("ESの構成") || section.title.includes("基本チェック")) {
+        mergedContent += section.content + "\n\n";
+      } else if (section.title.includes("改善提案")) {
+        mergedSections.push({
+          title: "改善提案",
+          content: section.content
+        });
+      } else if (!section.title.includes("ES総合点") && !section.title.includes("ESの構成") && !section.title.includes("基本チェック")) {
+        mergedSections.push(section);
+      }
+    });
+    
+    // Insert merged section
+    if (mergedContent) {
+      mergedSections.splice(1, 0, {
+        title: "ESの構成・基本チェック",
+        content: mergedContent.trim()
+      });
+    }
+    
+    return mergedSections;
+  };
+
+  const organizedFeedbackSections = organizeFeedbackSections(feedbackSections);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -72,125 +113,89 @@ const ESResultClient = ({ esData }: ESResultClientProps) => {
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 font-semibold max-w-3xl mx-auto leading-relaxed">
               <strong>{esData.company_name}</strong> のエントリーシート分析結果をお届けします
             </p>
-            <p className="text-sm text-gray-500 mt-4">
-              分析日時: {new Date(esData.created_at).toLocaleDateString("ja-JP", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit"
-              })}
-            </p>
           </div>
 
-          {/* Overall Score */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-lg border border-gray-100 mb-6 sm:mb-8 lg:mb-10">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#163300] mb-6 sm:mb-8 text-center">
-              総合評価
-            </h2>
-            <div className="text-center">
-              <div className="flex items-end gap-2 sm:gap-3 justify-center mb-4">
-                <span className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-[#163300]">
-                  {esData.overall_score}
-                </span>
-                <span className="pb-1 sm:pb-2 text-base sm:text-lg text-gray-500 font-medium">
-                  /100
-                </span>
+          {/* Overall Assessment with Radar Chart */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-start mb-8 sm:mb-12">
+            {/* Left Column: Score and Feedback */}
+            <div className="space-y-4 sm:space-y-6 order-2 lg:order-1">
+              {/* Score Display */}
+              <div className="text-center lg:text-left">
+                <div className="flex items-end gap-2 sm:gap-3 justify-center lg:justify-start">
+                  <span className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-[#163300]">
+                    {esData.overall_score}
+                  </span>
+                  <span className="pb-1 sm:pb-2 text-base sm:text-lg text-gray-500 font-medium">
+                    /100
+                  </span>
+                </div>
+                <p className="text-lg sm:text-xl font-semibold text-[#163300] mt-2">
+                  {getScoreLabel(esData.overall_score)}
+                </p>
               </div>
-              <p className="text-lg sm:text-xl font-semibold text-[#163300] mb-4">
-                {getScoreLabel(esData.overall_score)}
-              </p>
-              <div className="w-full max-w-md mx-auto h-3 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className={`h-3 rounded-full transition-all duration-700 ${
-                    esData.overall_score >= 90
-                      ? "bg-[#9fe870]"
-                      : esData.overall_score >= 70
-                      ? "bg-[#fbbf24]"
-                      : "bg-[#f97316]"
-                  }`}
-                  style={{ width: `${esData.overall_score}%` }}
+
+              {/* Feedback Text */}
+              <div className="bg-gray-50 rounded-xl p-3 sm:p-4">
+                <h3 className="text-base sm:text-lg font-semibold text-[#163300]">
+                  総合フィードバック
+                </h3>
+                <p className="text-gray-700 leading-relaxed text-xs sm:text-sm whitespace-pre-line">
+                  {esData.overall_score >= 90 
+                    ? "素晴らしいエントリーシートです！企業が求める人材像に非常にマッチしており、高い評価を受けるでしょう。"
+                    : esData.overall_score >= 80
+                    ? "良好なエントリーシートです。企業の求める人材像に概ねマッチしており、選考通過の可能性が高いです。"
+                    : esData.overall_score >= 70
+                    ? "改善の余地がありますが、基本的な要件は満たしています。提案された改善点を参考にしてみてください。"
+                    : "大幅な改善が必要です。企業の求める人材像とのギャップが大きいため、内容の見直しをお勧めします。"
+                  }
+                </p>
+              </div>
+            </div>
+
+            {/* Right Column: Chart */}
+            <div className="flex justify-center lg:justify-start order-1 lg:order-2">
+              <div className="w-full max-w-[300px] sm:max-w-[400px] lg:max-w-[500px]">
+                <InterviewRadarChart
+                  data={chartData}
+                  frameless={true}
+                  className="w-full"
                 />
               </div>
             </div>
           </div>
 
-          {/* Detailed Scores */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-lg border border-gray-100 mb-6 sm:mb-8 lg:mb-10">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#163300] mb-6 sm:mb-8 text-center">
-              詳細スコア
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { score: esData.match_score, label: "求める人材とのマッチ", key: "match" },
-                { score: esData.structure_score, label: "ESの構成", key: "structure" },
-                { score: esData.basic_score, label: "基本チェック", key: "basic" }
-              ].map((item, index) => (
-                <div key={item.key} className="p-4 sm:p-6 rounded-xl border border-gray-200 bg-gray-50 hover:shadow-md transition-all duration-300">
-                  <div className="flex items-start justify-between gap-4 mb-4">
-                    <h3 className="text-base sm:text-lg font-semibold text-[#163300]">
-                      {item.label}
-                    </h3>
-                    <div className="flex items-end gap-1">
-                      <span className="text-2xl sm:text-3xl font-bold text-[#163300]">
-                        {item.score}
-                      </span>
-                      <span className="text-sm text-gray-500 pb-1">/100</span>
-                    </div>
-                  </div>
-                  <div className="w-full h-2 bg-gray-200 rounded-full mb-2 overflow-hidden">
-                    <div
-                      className={`h-2 rounded-full transition-all duration-700 ${
-                        item.score >= 90
-                          ? "bg-[#9fe870]"
-                          : item.score >= 70
-                          ? "bg-[#fbbf24]"
-                          : "bg-[#f97316]"
-                      }`}
-                      style={{ width: `${item.score}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* AI Analysis Results */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-lg border border-gray-100 mb-6 sm:mb-8 lg:mb-10">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#163300] mb-6 sm:mb-8 text-center">
+          <div className="space-y-6 sm:space-y-8 mb-8 sm:mb-12">
+            <h2 className="text-3xl font-bold text-[#163300] mb-8 sm:mb-10 text-center">
               AI分析結果
             </h2>
-            <div className="space-y-6 sm:space-y-8">
-              {feedbackSections.map((section, index) => (
-                <div key={index} className="p-4 sm:p-6 bg-gray-50 rounded-xl border-l-4 border-[#9fe870]">
-                  <h3 className="text-lg sm:text-xl font-semibold text-[#163300] mb-3 sm:mb-4">
-                    {section.title}
-                  </h3>
-                  <div className="text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base">
-                    {section.content}
-                  </div>
+            {organizedFeedbackSections.map((section, index) => (
+              <div key={index} className="p-4 sm:p-6 bg-gray-50 rounded-xl border-l-4 border-[#9fe870]">
+                <h3 className="text-lg sm:text-xl font-semibold text-[#163300] mb-3 sm:mb-4">
+                  {section.title}
+                </h3>
+                <div className="text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base">
+                  {section.content}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
 
           {/* Original Submission */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-lg border border-gray-100 mb-6 sm:mb-8 lg:mb-10">
+          <div className="space-y-6 sm:space-y-8 mb-8 sm:mb-12">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#163300] mb-6 sm:mb-8 text-center">
               提出内容
             </h2>
-            <div className="space-y-6 sm:space-y-8">
-              <div>
-                <h3 className="text-lg sm:text-xl font-semibold text-[#163300] mb-3 sm:mb-4">質問</h3>
-                <div className="bg-gray-50 rounded-xl p-4 sm:p-6 text-gray-700 text-sm sm:text-base leading-relaxed">
-                  {esData.question}
-                </div>
+            <div>
+              <h3 className="text-lg sm:text-xl font-semibold text-[#163300] mb-3 sm:mb-4">質問</h3>
+              <div className="bg-gray-50 rounded-xl p-4 sm:p-6 text-gray-700 text-sm sm:text-base leading-relaxed">
+                {esData.question}
               </div>
-              <div>
-                <h3 className="text-lg sm:text-xl font-semibold text-[#163300] mb-3 sm:mb-4">あなたの回答</h3>
-                <div className="bg-gray-50 rounded-xl p-4 sm:p-6 text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base">
-                  {esData.answer}
-                </div>
+            </div>
+            <div>
+              <h3 className="text-lg sm:text-xl font-semibold text-[#163300] mb-3 sm:mb-4">あなたの回答</h3>
+              <div className="bg-gray-50 rounded-xl p-4 sm:p-6 text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base">
+                {esData.answer}
               </div>
             </div>
           </div>
@@ -199,13 +204,13 @@ const ESResultClient = ({ esData }: ESResultClientProps) => {
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-8 sm:mt-12 lg:mt-16 justify-center">
             <button
               onClick={() => router.push("/es-correction")}
-              className="bg-[#9fe870] text-[#163300] hover:bg-[#8fd960] w-full sm:w-auto px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-6 text-base sm:text-lg font-semibold rounded-2xl sm:rounded-3xl min-w-0 sm:min-w-[220px] shadow-md hover:shadow-lg transition-all duration-200"
+              className="bg-[#9fe870] text-[#163300] hover:bg-[#8fd960] w-full sm:w-auto px-6 py-3 text-base sm:text-lg font-semibold rounded-2xl shadow-md hover:shadow-lg transition-all duration-200"
             >
               新しいES添削を始める
             </button>
             <button
               onClick={() => router.push("/es-correction/history")}
-              className="w-full sm:w-auto px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-6 text-base sm:text-lg font-semibold border border-gray-300 rounded-2xl sm:rounded-3xl min-w-0 sm:min-w-[220px] hover:bg-gray-50 transition-all duration-200"
+              className="w-full sm:w-auto px-6 py-3 text-base sm:text-lg font-semibold border border-gray-300 rounded-2xl hover:bg-gray-50 transition-all duration-200"
             >
               過去のES添削を見る
             </button>
