@@ -62,7 +62,7 @@ const InterviewHistoryPage = () => {
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <AutoSignIn nonClosableModal={true}>
-          <div className="mb-8">
+          <div className="mb-8 mt-5">
             <div className="flex items-start justify-between mb-6">
               <Link
                 href="/dashboard"

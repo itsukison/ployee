@@ -3,7 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AutoSignIn from "@/components/ui/AutoSignIn";
-import { canStartSession, getCurrentESUsage, getESPlanLimit, getUserPlanName, getUserPlanLimit } from "@/lib/actions/usage.actions";
+import {
+  canStartSession,
+  getCurrentESUsage,
+  getESPlanLimit,
+  getUserPlanName,
+  getUserPlanLimit,
+} from "@/lib/actions/usage.actions";
 import { MessageCircle, History, Edit, FileText } from "lucide-react";
 import { PlanAndUsageWidgets } from "@/components/ui/plan-and-usage-widgets";
 
@@ -19,7 +25,7 @@ const DashboardPage = () => {
     currentUsageES: number;
     isLoading: boolean;
   }>({
-    planName: '',
+    planName: "",
     remainingInterviews: 0,
     remainingES: 0,
     planLimitInterviews: 0,
@@ -32,13 +38,14 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const [sessionInfo, planName, esUsage, esLimit, interviewLimit] = await Promise.all([
-          canStartSession(),
-          getUserPlanName(),
-          getCurrentESUsage(),
-          getESPlanLimit(),
-          getUserPlanLimit(),
-        ]);
+        const [sessionInfo, planName, esUsage, esLimit, interviewLimit] =
+          await Promise.all([
+            canStartSession(),
+            getUserPlanName(),
+            getCurrentESUsage(),
+            getESPlanLimit(),
+            getUserPlanLimit(),
+          ]);
 
         setUserInfo({
           planName,
@@ -51,8 +58,8 @@ const DashboardPage = () => {
           isLoading: false,
         });
       } catch (error) {
-        console.error('Error fetching user info:', error);
-        setUserInfo(prev => ({ ...prev, isLoading: false }));
+        console.error("Error fetching user info:", error);
+        setUserInfo((prev) => ({ ...prev, isLoading: false }));
       }
     };
 
@@ -65,29 +72,29 @@ const DashboardPage = () => {
       title: "新しいAI面接",
       description: "AI面接官との実践的な面接練習を始める",
       icon: MessageCircle,
-      route: "/interview/new"
+      route: "/interview/new",
     },
     {
       id: "past-interviews",
       title: "過去の面接",
-      description: "これまでの面接練習履歴を確認する", 
+      description: "これまでの面接練習履歴を確認する",
       icon: History,
-      route: "/past"
+      route: "/past",
     },
     {
       id: "es-correction",
       title: "ES添削",
       description: "エントリーシートをAIが詳細分析・添削",
       icon: Edit,
-      route: "/es-correction"
+      route: "/es-correction",
     },
     {
       id: "past-es-corrections",
       title: "過去のES添削",
       description: "これまでのES添削履歴を確認する",
       icon: FileText,
-      route: "/es-correction/history"
-    }
+      route: "/es-correction/history",
+    },
   ];
 
   const handleCardClick = (route: string) => {
@@ -101,8 +108,8 @@ const DashboardPage = () => {
         <div className="bg-gradient-to-br from-white via-gray-50 to-[#f8fffe] pt-20 pb-1">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-10">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-[#163300] to-[#2F4F3F] bg-clip-text text-transparent mb-6">
-                おかえりなさい！
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#163300] mb-4">
+                ダッシュボード
               </h1>
             </div>
 
@@ -125,11 +132,11 @@ const DashboardPage = () => {
         {/* Main Dashboard Content */}
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           {/* Welcome Message */}
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#163300] mb-6">
+          <div className="mb-12 -mt-8">
+            <h2 className="text-xl sm:text-2xl font-semibold text-[#163300] mb-3">
               何から始めますか？
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base text-gray-600 leading-relaxed">
               AI面接練習とES添削で、あなたの就活・転職活動を全面サポート
             </p>
           </div>
@@ -160,46 +167,24 @@ const DashboardPage = () => {
                       </p>
                     </div>
                     <div className="text-gray-400 group-hover:text-[#9fe870] transition-colors duration-300">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      <svg
+                        className="w-6 h-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
                       </svg>
                     </div>
                   </div>
                 </div>
               );
             })}
-          </div>
-
-          {/* Modern Quick Actions */}
-          <div className="text-center">
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl p-10 shadow-xl border border-gray-100">
-              <h3 className="text-2xl font-bold text-[#163300] mb-4">
-                今すぐ始めよう
-              </h3>
-              <p className="text-gray-600 mb-10 text-lg leading-relaxed">
-                面接練習またはES添削で、理想の未来への第一歩を踏み出しましょう
-              </p>
-              <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                <button
-                  onClick={() => router.push("/interview/new")}
-                  className="group px-10 py-4 bg-gradient-to-r from-[#9fe870] to-[#8fd960] text-[#163300] rounded-2xl font-bold transition-all duration-300 hover:shadow-[0_15px_30px_rgba(159,232,112,0.4)] hover:scale-105 hover:-translate-y-1"
-                >
-                  <span className="flex items-center justify-center space-x-2">
-                    <MessageCircle className="w-5 h-5" />
-                    <span>面接練習を始める</span>
-                  </span>
-                </button>
-                <button
-                  onClick={() => router.push("/es-correction")}
-                  className="group px-10 py-4 bg-white border-2 border-[#9fe870] text-[#163300] rounded-2xl font-bold transition-all duration-300 hover:bg-[#9fe870] hover:shadow-[0_15px_30px_rgba(159,232,112,0.3)] hover:scale-105 hover:-translate-y-1"
-                >
-                  <span className="flex items-center justify-center space-x-2">
-                    <Edit className="w-5 h-5" />
-                    <span>ES添削を試す</span>
-                  </span>
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -229,17 +214,26 @@ const DashboardPage = () => {
                 </h3>
                 <ul className="space-y-3">
                   <li>
-                    <a href="/interview/new" className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200">
+                    <a
+                      href="/interview/new"
+                      className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
+                    >
                       AI面接練習
                     </a>
                   </li>
                   <li>
-                    <a href="/es-correction" className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200">
+                    <a
+                      href="/es-correction"
+                      className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
+                    >
                       フィードバック分析
                     </a>
                   </li>
                   <li>
-                    <a href="/pricing" className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200">
+                    <a
+                      href="/pricing"
+                      className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
+                    >
                       料金プラン
                     </a>
                   </li>
@@ -253,17 +247,26 @@ const DashboardPage = () => {
                 </h3>
                 <ul className="space-y-3">
                   <li>
-                    <a href="/help" className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200">
+                    <a
+                      href="/help"
+                      className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
+                    >
                       ヘルプセンター
                     </a>
                   </li>
                   <li>
-                    <a href="/interview-guide" className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200">
+                    <a
+                      href="/interview-guide"
+                      className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
+                    >
                       面接対策ガイド
                     </a>
                   </li>
                   <li>
-                    <a href="/contact" className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200">
+                    <a
+                      href="/contact"
+                      className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
+                    >
                       お問い合わせ
                     </a>
                   </li>
@@ -277,7 +280,10 @@ const DashboardPage = () => {
                 </h3>
                 <ul className="space-y-3">
                   <li>
-                    <a href="/students" className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200">
+                    <a
+                      href="/students"
+                      className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
+                    >
                       就活生向け
                     </a>
                   </li>
@@ -287,7 +293,10 @@ const DashboardPage = () => {
                     </span>
                   </li>
                   <li>
-                    <a href="/enterprise" className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200">
+                    <a
+                      href="/enterprise"
+                      className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
+                    >
                       企業向け
                     </a>
                   </li>
@@ -302,10 +311,16 @@ const DashboardPage = () => {
                   2025年 プロイー開発チーム
                 </div>
                 <div className="flex gap-6">
-                  <a href="/terms" className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200">
+                  <a
+                    href="/terms"
+                    className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
+                  >
                     利用規約
                   </a>
-                  <a href="/privacy" className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200">
+                  <a
+                    href="/privacy"
+                    className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
+                  >
                     プライバシーポリシー
                   </a>
                 </div>

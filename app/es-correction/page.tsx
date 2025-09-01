@@ -190,44 +190,7 @@ const ESCorrectionPage = () => {
             </p>
             
             {/* Usage Information */}
-            {isLoadingUsage ? (
-              <div className="mt-4 flex items-center justify-center gap-2">
-                <LoadingSpinner size="sm" color="#163300" />
-                <span className="text-sm text-gray-600">使用状況を確認中...</span>
-              </div>
-            ) : usageInfo && (
-              <div className="mt-6 max-w-md mx-auto">
-                <div className={`
-                  px-4 py-3 rounded-xl border-2 
-                  ${usageInfo.remainingCorrections > 0 
-                    ? "bg-green-50 border-green-200" 
-                    : "bg-red-50 border-red-200"
-                  }
-                `}>
-                  <p className={`
-                    text-sm font-semibold
-                    ${usageInfo.remainingCorrections > 0 
-                      ? "text-green-700" 
-                      : "text-red-700"
-                    }
-                  `}>
-                    今月の使用状況: {usageInfo.currentUsage} / {usageInfo.planLimit} 回
-                  </p>
-                  <p className={`
-                    text-xs mt-1
-                    ${usageInfo.remainingCorrections > 0 
-                      ? "text-green-600" 
-                      : "text-red-600"
-                    }
-                  `}>
-                    {usageInfo.remainingCorrections > 0 
-                      ? `残り ${usageInfo.remainingCorrections} 回利用可能です`
-                      : "プランをアップグレードして、より多くのES添削をご利用ください"
-                    }
-                  </p>
-                </div>
-              </div>
-            )}
+        
           </div>
 
           {/* Form */}

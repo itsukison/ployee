@@ -43,6 +43,10 @@ const formSchema = z.object({
     message: "会社名を入力してください",
   }),
 
+  position: z.string().min(1, {
+    message: "職種を入力してください",
+  }),
+
   interviewFocus: z.enum(
     [
       "consulting",
@@ -89,6 +93,7 @@ export function InterviewForm() {
       name: "",
       education: "",
       companyName: "",
+      position: "",
     },
   });
 
@@ -280,6 +285,35 @@ export function InterviewForm() {
                 )}
               />
 
+              <FormField
+                control={form.control}
+                name="position"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm sm:text-base font-semibold text-[#163300]">
+                      職種 <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="例: 営業職、エンジニア、企画職"
+                        className="h-10 sm:h-12 text-sm sm:text-base"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Industry Preference Section */}
+          <div className="space-y-4 sm:space-y-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#163300]">
+              3. 志望業界
+            </h2>
+
+            <div className="grid grid-cols-1 gap-4 sm:gap-6">
               <FormField
                 control={form.control}
                 name="interviewFocus"

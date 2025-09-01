@@ -34,11 +34,11 @@ const ESResultClient = ({ esData }: ESResultClientProps) => {
   const formatFeedback = (feedback: string): FeedbackSection[] => {
     const sections = feedback.split(/【([^】]+)】/).filter(Boolean);
     const formattedSections: FeedbackSection[] = [];
-    
+
     for (let i = 0; i < sections.length; i += 2) {
       const title = sections[i];
       const content = sections[i + 1];
-      
+
       if (title && content) {
         formattedSections.push({ title, content: content.trim() });
       }
@@ -61,41 +61,54 @@ const ESResultClient = ({ esData }: ESResultClientProps) => {
     { criteria: "求める人材とのマッチ", score: esData.match_score },
     { criteria: "ESの構成", score: esData.structure_score },
     { criteria: "基本チェック", score: esData.basic_score },
-    { criteria: "内容の充実度", score: Math.min(100, esData.overall_score + 10) },
-    { criteria: "志望動機の明確さ", score: Math.min(100, esData.match_score + 5) }
+    {
+      criteria: "内容の充実度",
+      score: Math.min(100, esData.overall_score + 10),
+    },
+    {
+      criteria: "志望動機の明確さ",
+      score: Math.min(100, esData.match_score + 5),
+    },
   ];
 
   // Organize feedback sections by merging ESの構成 with 基本チェック
   const organizeFeedbackSections = (sections: FeedbackSection[]) => {
     const mergedSections: FeedbackSection[] = [];
     let mergedContent = "";
-    
-    sections.forEach(section => {
+
+    sections.forEach((section) => {
       if (section.title.includes("求める人材とのマッチ")) {
         mergedSections.push({
           title: "求める人材とのマッチ",
-          content: section.content
+          content: section.content,
         });
-      } else if (section.title.includes("ESの構成") || section.title.includes("基本チェック")) {
+      } else if (
+        section.title.includes("ESの構成") ||
+        section.title.includes("基本チェック")
+      ) {
         mergedContent += section.content + "\n\n";
       } else if (section.title.includes("改善提案")) {
         mergedSections.push({
           title: "改善提案",
-          content: section.content
+          content: section.content,
         });
-      } else if (!section.title.includes("ES総合点") && !section.title.includes("ESの構成") && !section.title.includes("基本チェック")) {
+      } else if (
+        !section.title.includes("ES総合点") &&
+        !section.title.includes("ESの構成") &&
+        !section.title.includes("基本チェック")
+      ) {
         mergedSections.push(section);
       }
     });
-    
+
     // Insert merged section
     if (mergedContent) {
       mergedSections.splice(1, 0, {
         title: "ESの構成・基本チェック",
-        content: mergedContent.trim()
+        content: mergedContent.trim(),
       });
     }
-    
+
     return mergedSections;
   };
 
@@ -111,7 +124,8 @@ const ESResultClient = ({ esData }: ESResultClientProps) => {
               ES添削結果
             </h1>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 font-semibold max-w-3xl mx-auto leading-relaxed">
-              <strong>{esData.company_name}</strong> のエントリーシート分析結果をお届けします
+              <strong>{esData.company_name}</strong>{" "}
+              のエントリーシート分析結果をお届けします
             </p>
           </div>
 
@@ -135,20 +149,19 @@ const ESResultClient = ({ esData }: ESResultClientProps) => {
               </div>
 
               {/* Feedback Text */}
-              <div className="bg-gray-50 rounded-xl p-3 sm:p-4">
-                <h3 className="text-base sm:text-lg font-semibold text-[#163300]">
+              <div>
+                <h3 className="text-base sm:text-lg font-semibold text-[#163300] mb-3 sm:mb-4">
                   総合フィードバック
                 </h3>
-                <p className="text-gray-700 leading-relaxed text-xs sm:text-sm whitespace-pre-line">
-                  {esData.overall_score >= 90 
+                <div className="bg-gray-100 rounded-3xl p-4 sm:p-6 text-gray-700 leading-relaxed text-xs sm:text-sm whitespace-pre-line">
+                  {esData.overall_score >= 90
                     ? "素晴らしいエントリーシートです！企業が求める人材像に非常にマッチしており、高い評価を受けるでしょう。"
                     : esData.overall_score >= 80
                     ? "良好なエントリーシートです。企業の求める人材像に概ねマッチしており、選考通過の可能性が高いです。"
                     : esData.overall_score >= 70
                     ? "改善の余地がありますが、基本的な要件は満たしています。提案された改善点を参考にしてみてください。"
-                    : "大幅な改善が必要です。企業の求める人材像とのギャップが大きいため、内容の見直しをお勧めします。"
-                  }
-                </p>
+                    : "大幅な改善が必要です。企業の求める人材像とのギャップが大きいため、内容の見直しをお勧めします。"}
+                </div>
               </div>
             </div>
 
@@ -170,11 +183,14 @@ const ESResultClient = ({ esData }: ESResultClientProps) => {
               AI分析結果
             </h2>
             {organizedFeedbackSections.map((section, index) => (
-              <div key={index} className="p-4 sm:p-6 bg-gray-50 rounded-xl border-l-4 border-[#9fe870]">
+              <div
+                key={index}
+                className="border-l-4 border-[#9fe870] pl-4 sm:pl-6"
+              >
                 <h3 className="text-lg sm:text-xl font-semibold text-[#163300] mb-3 sm:mb-4">
                   {section.title}
                 </h3>
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base">
+                <div className="bg-gray-100 rounded-3xl p-4 sm:p-6 text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base">
                   {section.content}
                 </div>
               </div>
@@ -187,14 +203,18 @@ const ESResultClient = ({ esData }: ESResultClientProps) => {
               提出内容
             </h2>
             <div>
-              <h3 className="text-lg sm:text-xl font-semibold text-[#163300] mb-3 sm:mb-4">質問</h3>
-              <div className="bg-gray-50 rounded-xl p-4 sm:p-6 text-gray-700 text-sm sm:text-base leading-relaxed">
+              <h3 className="text-lg sm:text-xl font-semibold text-[#163300] mb-3 sm:mb-4">
+                質問
+              </h3>
+              <div className="bg-gray-100 rounded-3xl p-4 sm:p-6 text-gray-700 text-sm sm:text-base leading-relaxed">
                 {esData.question}
               </div>
             </div>
             <div>
-              <h3 className="text-lg sm:text-xl font-semibold text-[#163300] mb-3 sm:mb-4">あなたの回答</h3>
-              <div className="bg-gray-50 rounded-xl p-4 sm:p-6 text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base">
+              <h3 className="text-lg sm:text-xl font-semibold text-[#163300] mb-3 sm:mb-4">
+                あなたの回答
+              </h3>
+              <div className="bg-gray-100 rounded-3xl p-4 sm:p-6 text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base">
                 {esData.answer}
               </div>
             </div>
