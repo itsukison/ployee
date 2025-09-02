@@ -10,6 +10,7 @@ type CreateInterview = {
   name: string;
   education: string;
   companyName: string;
+  position: string;
   interviewFocus: "consulting" | "finance" | "manufacturing" | "trading" | "it" | "advertising" | "hr" | "infrastructure" | "real_estate";
 }
 
