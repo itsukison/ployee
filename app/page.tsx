@@ -1101,6 +1101,14 @@ export default function Home() {
                           </button>
                         </li>
                         <li>
+                           <button
+                            onClick={() => router.push("/es-correction")}
+                            className="text-gray-300 hover:text-[#9fe870] transition-colors text-sm text-left"
+                          >
+                            ES添削
+                          </button>
+                           </li>
+                        <li>
                           <button
                             onClick={() => router.push("/pricing")}
                             className="text-gray-300 hover:text-[#9fe870] transition-colors text-sm text-left"

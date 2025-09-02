@@ -223,11 +223,19 @@ const DashboardPage = () => {
                   </li>
                   <li>
                     <a
-                      href="/es-correction"
+                      href="/past"
                       className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
                     >
                       フィードバック分析
                     </a>
+                  </li>
+                  <li>
+                    <a
+                      href="/es-correction"
+                      className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
+                    >
+                      ES添削
+                      </a>
                   </li>
                   <li>
                     <a
@@ -248,7 +256,7 @@ const DashboardPage = () => {
                 <ul className="space-y-3">
                   <li>
                     <a
-                      href="/help"
+                      href="/help-center"
                       className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
                     >
                       ヘルプセンター
@@ -256,7 +264,7 @@ const DashboardPage = () => {
                   </li>
                   <li>
                     <a
-                      href="/interview-guide"
+                      href="/blog"
                       className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
                     >
                       面接対策ガイド
@@ -281,20 +289,23 @@ const DashboardPage = () => {
                 <ul className="space-y-3">
                   <li>
                     <a
-                      href="/students"
+                      href="/interview/new"
                       className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
                     >
                       就活生向け
                     </a>
                   </li>
                   <li>
-                    <span className="text-sm text-gray-400">
+                  <a
+                      href="/for-career-changers"
+                      className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
+                    >
                       転職者向け（近日公開）
-                    </span>
+                   </a>
                   </li>
                   <li>
                     <a
-                      href="/enterprise"
+                      href="/for-companies"
                       className="text-sm text-gray-600 hover:text-[#163300] transition-colors duration-200"
                     >
                       企業向け
