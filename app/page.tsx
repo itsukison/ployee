@@ -375,7 +375,7 @@ export default function Home() {
             <div className="mobile-container relative z-10">
               <div className="text-left mobile-mb-medium">
                 {/* Feature badges - moved down to account for navbar */}
-                <div className="flex flex-wrap gap-2 sm:gap-4 mobile-mb-medium mt-20 sm:mt-32">
+                <div className="flex flex-wrap gap-2 sm:gap-4 mobile-mb-medium mt-26 sm:mt-32">
                   <div className="inline-flex items-center px-3 sm:px-4 py-2 rounded-full border border-white/20 text-white/80 text-xs sm:text-sm font-medium backdrop-blur-sm">
                     <div className="w-2 h-2 bg-[#9fe870] rounded-full mr-2"></div>
                     24時間利用可能
